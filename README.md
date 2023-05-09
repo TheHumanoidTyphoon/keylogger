@@ -2,7 +2,7 @@
 
 ## Introduction:
 
-This Python script functions as a comprehensive keylogger, proficient in capturing keyboard inputs, mouse movements, screen captures, and audio recordings of the computer user. Additionally, it facilitates the transfer of captured data to a specified email address at predetermined .
+This Python script functions as a comprehensive keylogger, proficient in capturing keyboard inputs, mouse movements, screen captures, and audio recordings of the computer user. Additionally, it facilitates the transfer of captured data to a specified email address at predetermined intervals.
 
 ## Requirements:
 
